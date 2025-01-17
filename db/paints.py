@@ -1,7 +1,7 @@
 import time
 from typing import List, Tuple
 from fastapi import HTTPException, status
-from backend.models import Paint
+from ..models import Paint
 from .utils import connect_to_db, commit_and_close_db
 
 __all__ = ['insert_paint', 'update_paint', 'delete_paint', 'get_paint', 'get_paint_user_id', 'get_paints_by_filters',
