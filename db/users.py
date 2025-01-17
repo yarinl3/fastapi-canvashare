@@ -1,7 +1,7 @@
 import os
 from typing import List, Optional
 from fastapi import HTTPException, status
-from ..models import UpdateUser, UserTuple
+from app.models import UpdateUser, UserTuple
 from .utils import connect_to_db, commit_and_close_db
 
 __all__ = ['insert_user', 'get_user', 'get_users', 'get_user_id', 'get_user_email', 'get_hashed_password',

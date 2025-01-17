@@ -1,6 +1,6 @@
 from typing import List, Tuple
 from fastapi import HTTPException, status
-from ..models import Paint
+from app.models import Paint
 from .utils import connect_to_db, commit_and_close_db
 
 def get_tags() -> List[dict]:
