@@ -1,17 +1,19 @@
 import os
 from dotenv import load_dotenv
 from fastapi import HTTPException, status
+import urllib.parse as urlparse
 import psycopg2
 
 load_dotenv()
-DB_NAME = os.getenv("DB_NAME")
-DB_USER = os.getenv("DB_USER")
-DB_PASS = os.getenv("DB_PASS")
-DB_HOST = os.getenv("DB_HOST")
-DB_PORT = os.getenv("DB_PORT")
+url = urlparse.urlparse(os.environ['DATABASE_URL'])
+dbname = url.path[1:]
+user = url.username
+password = url.password
+host = url.hostname
+port = url.port
 
 def connect_to_db() -> tuple:
-    con = psycopg2.connect(database=DB_NAME, user=DB_USER, password=DB_PASS, host=DB_HOST, port=DB_PORT)
+    con = psycopg2.connect(dbname=dbname, user=user, password=password, host=host, port=port)
     cur = con.cursor()
     return con, cur
 
