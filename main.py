@@ -57,4 +57,4 @@ if super_admins:
 
 
 if __name__ == "__main__":
-    uvicorn.run(app, host=os.getenv('BACK_DOMAIN'), port=int(os.getenv('BACK_PORT')))
+    uvicorn.run(app, host=os.getenv('BACK_DOMAIN'))
