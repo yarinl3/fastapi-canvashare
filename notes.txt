@@ -33,3 +33,5 @@ add .python-version file with this content:
 ***********************************************
 remove in photo.py
     :{os.getenv('BACK_PORT')}
+
+in the same line make the url https
