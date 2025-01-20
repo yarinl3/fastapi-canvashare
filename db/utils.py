@@ -4,7 +4,6 @@ from fastapi import HTTPException, status
 import urllib.parse as urlparse
 import psycopg2
 
-load_dotenv()
 url = urlparse.urlparse(os.environ['DATABASE_URL'])
 dbname = url.path[1:]
 user = url.username
