@@ -1,18 +1,17 @@
 import os
 from dotenv import load_dotenv
 from fastapi import HTTPException, status
-import urllib.parse as urlparse
 import psycopg2
 
-url = urlparse.urlparse(os.environ['DATABASE_URL'])
-dbname = url.path[1:]
-user = url.username
-password = url.password
-host = url.hostname
-port = url.port
+load_dotenv()
+DB_NAME = os.getenv("DB_NAME")
+DB_USER = os.getenv("DB_USER")
+DB_PASS = os.getenv("DB_PASS")
+DB_HOST = os.getenv("DB_HOST")
+DB_PORT = os.getenv("DB_PORT")
 
 def connect_to_db() -> tuple:
-    con = psycopg2.connect(dbname=dbname, user=user, password=password, host=host, port=port)
+    con = psycopg2.connect(database=DB_NAME, user=DB_USER, password=DB_PASS, host=DB_HOST, port=DB_PORT)
     cur = con.cursor()
     return con, cur
 
@@ -33,3 +32,16 @@ def raise_error_if_blocked(user_id: int | None) -> None:
         con.close()
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User is blocked")
     con.close()
+
+def is_safe_remove_photo(photo_name: str):
+    con, cur = connect_to_db()
+    photo_name = f'%{photo_name}'
+    results = []
+    cur.execute("SELECT * FROM users WHERE profile_photo LIKE %s OR cover_photo LIKE %s", (photo_name, photo_name))
+    results += cur.fetchall()
+    cur.execute("SELECT * FROM paints WHERE photo LIKE %s", (photo_name, ))
+    results += cur.fetchall()
+    con.close()
+    if len(results) < 2:
+        return True
+    return False

@@ -1,11 +1,15 @@
-from typing import Optional, List
+from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, status
-from models import User, Token , Tokens, UpdateUser, UserTuple
+from models import User, Token , Tokens, UpdateUser, UserTuple, Users
+from photo import delete_photo
 from db.tags import insert_favorite_tags, get_tags_id, get_favorite_tags, delete_favorite_tags
 from db.utils import raise_error_if_guest, raise_error_if_blocked
-from db.users import *
-from photo import delete_photo
-from auth import *
+from db.users import (insert_user, get_user_id, get_username_by_email, get_user_email, get_hashed_password,
+                      connect_user, disconnect_user, get_user, get_users, get_popular_users, is_user_exist,
+                      get_prev_photos, remove_user_photos, delete_user, update_user, insert_user_roles, has_role,
+                      get_user_roles)
+from auth import (get_jwt_user_id, generate_token, get_password_hash, verify_password, check_guest_or_blocked,
+                  ACCESS_TOKEN_EXPIRE_TIME, REFRESH_TOKEN_EXPIRE_TIME)
 
 user_router = APIRouter(prefix="/user")
 access_router = APIRouter()
@@ -59,15 +63,15 @@ def get_user_endpoint(user_id: int, jwt_user_id: int = Depends(get_jwt_user_id))
     raise_error_if_blocked(jwt_user_id)
     return convert_db_user_to_user(get_user(user_id), jwt_user_id)
 
-@user_router.get("", response_model=List[User])
+@user_router.get("", response_model=Users)
 def get_users_endpoint(username: Optional[str] = None, order_by: Optional[str]=None, limit: Optional[int]=None,
-                       jwt_user_id: int = Depends(get_jwt_user_id)) -> List[User]:
+                       jwt_user_id: int = Depends(get_jwt_user_id)) -> Users:
     raise_error_if_blocked(jwt_user_id)
     if order_by == 'popular':
         users = get_popular_users(limit)
     else:
         users = get_users(jwt_user_id, username)
-    return [convert_db_user_to_user(user, jwt_user_id) for user in users]
+    return {"results": [convert_db_user_to_user(user, jwt_user_id) for user in users]}
 
 @user_router.post("")
 def create_user_endpoint(user: User, jwt_user_id: int = Depends(check_guest_or_blocked)) -> dict:
@@ -107,10 +111,10 @@ def update_user_endpoint(user_id: int, user: User
         update_user(UpdateUser(user_id=user_id, username=user.username, hashed_password=hashed_password,
                           email=user.email, profile_photo=user.profile_photo, cover_photo=user.cover_photo,
                           about=user.about, is_blocked=is_blocked))
-        if user.tags:
+        if user.tags is not None:
             delete_favorite_tags(user_id)
             insert_favorite_tags(user_id, get_tags_id(user.tags))
-        if roles:
+        if roles is not None:
             insert_user_roles(roles, user_id)
         return {}
     raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Unauthorized")
