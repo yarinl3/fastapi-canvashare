@@ -1,7 +1,7 @@
 import time
 from typing import List, Tuple
 from fastapi import HTTPException, status
-from backend.models import Paint, UpdatePaint
+from app.models import Paint, UpdatePaint
 from .utils import connect_to_db, commit_and_close_db
 
 def insert_paint(paint: Paint) -> int:

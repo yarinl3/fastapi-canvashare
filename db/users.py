@@ -1,7 +1,7 @@
 import os
 from typing import List, Optional
 from fastapi import HTTPException, status
-from backend.models import UpdateUser, UserTuple
+from app.models import UpdateUser, UserTuple
 from .utils import connect_to_db, commit_and_close_db, is_safe_remove_photo
 
 def insert_user(username: str, hashed_password: str, email: str, is_blocked: bool, disabled: bool) -> int:
